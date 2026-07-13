@@ -77,14 +77,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SynapseOS — AI Workflow Orchestrator for ASEAN Enterprises" },
-      { name: "description", content: "SynapseOS orchestrates AI agents, enterprise systems, and human approvals to execute end-to-end business workflows across ASEAN organizations." },
-      { name: "author", content: "SynapseOS" },
-      { property: "og:title", content: "SynapseOS — AI Workflow Orchestrator" },
-      { property: "og:description", content: "Coordinate AI agents, ERP systems, and human decision-makers across complete business workflows." },
+      { title: "JalinkAI — AI Workflow Orchestrator for ASEAN Enterprises" },
+      {
+        name: "description",
+        content:
+          "JalinkAI orchestrates AI agents, enterprise systems, and human approvals to execute end-to-end business workflows across ASEAN organizations, starting with procure-to-pay.",
+      },
+      { name: "author", content: "JalinkAI" },
+      { property: "og:title", content: "JalinkAI — AI Workflow Orchestrator" },
+      {
+        property: "og:description",
+        content:
+          "Coordinate AI agents, ERP systems, and human decision-makers across complete business workflows.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@SynapseOS" },
+      { name: "twitter:site", content: "@JalinkAI" },
     ],
     links: [
       {
@@ -94,7 +102,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
