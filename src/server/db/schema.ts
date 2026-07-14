@@ -235,3 +235,41 @@ export const hrRequests = pgTable("hr_requests", {
 });
 
 export type HrRequest = typeof hrRequests.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// Memory Agent — a real indexed-document count instead of the Dashboard's
+// hardcoded "12,481 documents indexed".
+// ---------------------------------------------------------------------------
+
+export const documentCategories = ["policy", "sop", "contract", "decision"] as const;
+export type DocumentCategory = (typeof documentCategories)[number];
+
+export const documents = pgTable("documents", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  category: text("category", { enum: documentCategories }).notNull(),
+  language: text("language").notNull(),
+  summary: text("summary").notNull(),
+  tags: jsonb("tags").$type<string[]>().notNull(),
+  createdAt: timestamp("created_at").notNull(),
+});
+
+export type Document = typeof documents.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// Integrations Agent — real connect/disconnect state for the connectors
+// already listed on the Dashboard, instead of static green dots.
+// ---------------------------------------------------------------------------
+
+export const connectorStatuses = ["connected", "disconnected"] as const;
+export type ConnectorStatus = (typeof connectorStatuses)[number];
+
+export const connectors = pgTable("connectors", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  status: text("status", { enum: connectorStatuses }).notNull(),
+  lastSyncAt: timestamp("last_sync_at"),
+});
+
+export type Connector = typeof connectors.$inferSelect;

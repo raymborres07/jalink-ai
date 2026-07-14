@@ -5,6 +5,7 @@ import {
   complianceChecks,
   contracts,
   deals,
+  documents,
   hrRequests,
   inventoryItems,
   invoices,
@@ -37,6 +38,7 @@ export interface DashboardStats {
   supplierCount: number;
   recent: RecentInvoice[];
   departmentTaskCounts: DepartmentTaskCounts;
+  documentCount: number;
 }
 
 export const getDashboardStats = createServerFn({ method: "GET" }).handler(
@@ -50,6 +52,7 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(
       [dealCount],
       [hrCount],
       [contractCount],
+      [documentCount],
     ] = await Promise.all([
       db.select().from(invoices).orderBy(desc(invoices.createdAt)),
       db.select().from(suppliers),
@@ -59,6 +62,7 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(
       db.select({ value: count() }).from(deals),
       db.select({ value: count() }).from(hrRequests),
       db.select({ value: count() }).from(contracts),
+      db.select({ value: count() }).from(documents),
     ]);
 
     const supplierNameById = new Map(allSuppliers.map((s) => [s.id, s.name]));
@@ -96,6 +100,7 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(
         sales: dealCount.value,
         hr: hrCount.value,
       },
+      documentCount: documentCount.value,
     };
   },
 );

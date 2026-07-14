@@ -255,16 +255,22 @@ export function Dashboard() {
           </div>
           <div className="mx-6 hidden h-6 w-px bg-border md:block" />
           <nav className="hidden items-center gap-1 text-sm md:flex">
-            {["Orchestrator", "Workflows", "Agents", "Memory", "Governance", "Analytics"].map(
-              (n, i) => (
-                <button
-                  key={n}
-                  className={`rounded-md px-3 py-1.5 transition ${i === 0 ? "bg-ink text-paper" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  {n}
-                </button>
-              ),
-            )}
+            {[
+              { label: "Orchestrator", to: "/" as const, active: true },
+              { label: "Workflows", to: "/procure-to-pay" as const },
+              { label: "Agents", to: "/agents" as const },
+              { label: "Memory", to: "/memory" as const },
+              { label: "Governance", to: "/governance" as const },
+              { label: "Analytics", to: "/analytics" as const },
+            ].map((n) => (
+              <Link
+                key={n.label}
+                to={n.to}
+                className={`rounded-md px-3 py-1.5 transition ${n.active ? "bg-ink text-paper" : "text-muted-foreground hover:bg-muted"}`}
+              >
+                {n.label}
+              </Link>
+            ))}
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <div className="relative hidden md:block">
@@ -299,16 +305,17 @@ export function Dashboard() {
             {[
               { icon: Command, label: "Orchestrator", active: true, badge: "7" },
               { icon: Workflow, label: "Workflows", badge: "34", to: "/procure-to-pay" },
-              { icon: Bot, label: "Agents", badge: "12" },
+              { icon: Bot, label: "Agents", badge: "12", to: "/agents" },
               {
                 icon: Shield,
                 label: "Approvals",
                 badge: stats ? String(stats.byStatus.scored) : "…",
+                to: "/governance",
               },
-              { icon: FileText, label: "Enterprise Memory" },
-              { icon: Plug, label: "Integrations" },
-              { icon: LineChart, label: "Business ROI" },
-              { icon: Settings, label: "Governance" },
+              { icon: FileText, label: "Enterprise Memory", to: "/memory" },
+              { icon: Plug, label: "Integrations", to: "/integrations" },
+              { icon: LineChart, label: "Business ROI", to: "/analytics" },
+              { icon: Settings, label: "Governance", to: "/governance" },
             ].map((it) => {
               const className = `flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition ${
                 it.active ? "bg-ink text-paper" : "hover:bg-muted"
@@ -539,9 +546,12 @@ export function Dashboard() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider">
                   Enterprise connectors
                 </h3>
-                <button className="text-xs text-muted-foreground hover:text-foreground">
+                <Link
+                  to="/integrations"
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
                   manage →
-                </button>
+                </Link>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {integrations.map((n) => (
@@ -638,11 +648,16 @@ export function Dashboard() {
           </div>
 
           {/* Memory */}
-          <div className="rounded-2xl border border-border bg-ink p-5 text-paper">
+          <Link
+            to="/memory"
+            className="block rounded-2xl border border-border bg-ink p-5 text-paper transition hover:bg-ink/90"
+          >
             <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-paper/60">
               <FileText className="h-3.5 w-3.5" /> Enterprise memory
             </div>
-            <div className="mt-2 font-serif text-2xl leading-tight">12,481 documents indexed</div>
+            <div className="mt-2 font-serif text-2xl leading-tight">
+              {stats ? stats.documentCount.toLocaleString() : "…"} documents indexed
+            </div>
             <p className="mt-2 text-xs text-paper/70">
               Policies, SOPs, contracts and past decisions shared across every agent — in Bahasa,
               English, Vietnamese & Thai.
@@ -654,7 +669,7 @@ export function Dashboard() {
                 </span>
               ))}
             </div>
-          </div>
+          </Link>
         </aside>
       </div>
 

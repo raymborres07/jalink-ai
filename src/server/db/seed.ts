@@ -1,5 +1,14 @@
 import { db } from "./client.server";
-import { budgets, contracts, deals, hrRequests, inventoryItems, suppliers } from "./schema";
+import {
+  budgets,
+  connectors,
+  contracts,
+  deals,
+  documents,
+  hrRequests,
+  inventoryItems,
+  suppliers,
+} from "./schema";
 
 async function seed(): Promise<void> {
   await db
@@ -176,6 +185,86 @@ async function seed(): Promise<void> {
         createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
       },
     ])
+    .onConflictDoNothing();
+
+  await db
+    .insert(documents)
+    .values([
+      {
+        id: "doc-asean-cross-border-policy",
+        title: "ASEAN Cross-Border Data Transfer Policy",
+        category: "policy",
+        language: "English",
+        summary: "Governs how supplier and transaction data moves between ASEAN jurisdictions.",
+        tags: ["ASEAN", "data protection", "compliance"],
+        createdAt: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: "doc-invoice-reconciliation-sop",
+        title: "SOP Rekonsiliasi Faktur (Invoice Reconciliation SOP)",
+        category: "sop",
+        language: "Bahasa Indonesia",
+        summary:
+          "Step-by-step process for matching supplier invoices against POs and delivery notes.",
+        tags: ["procurement", "SOP"],
+        createdAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: "doc-msa-template",
+        title: "Master Services Agreement Template v3.2",
+        category: "contract",
+        language: "English",
+        summary:
+          "Standard MSA template used for new supplier agreements, ASEAN cross-border clause included.",
+        tags: ["legal", "contract template"],
+        createdAt: new Date(Date.now() - 400 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: "doc-q1-capex-hedge-decision",
+        title: "Q1 2026 CAPEX Hedge Decision",
+        category: "decision",
+        language: "English",
+        summary:
+          "Record of the decision to execute an FX forward hedge above the Q1 CAPEX threshold.",
+        tags: ["finance", "FX", "decision log"],
+        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: "doc-supplier-onboarding-sop",
+        title: "Quy Trình Thẩm Định Nhà Cung Cấp Mới (New Supplier Vetting SOP)",
+        category: "sop",
+        language: "Vietnamese",
+        summary: "Vetting checklist for onboarding a new, unproven supplier before the first PO.",
+        tags: ["procurement", "risk", "SOP"],
+        createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+      },
+      {
+        id: "doc-pdpa-compliance-checklist",
+        title: "รายการตรวจสอบการปฏิบัติตาม PDPA (PDPA Compliance Checklist)",
+        category: "policy",
+        language: "Thai",
+        summary:
+          "Checklist confirming supplier and customer data handling meets Thai PDPA requirements.",
+        tags: ["compliance", "PDPA"],
+        createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+      },
+    ])
+    .onConflictDoNothing();
+
+  await db
+    .insert(connectors)
+    .values(
+      [
+        { id: "conn-whatsapp", name: "WhatsApp Business", category: "Messaging" },
+        { id: "conn-xero", name: "Xero", category: "Accounting" },
+        { id: "conn-quickbooks", name: "QuickBooks", category: "Accounting" },
+        { id: "conn-slack", name: "Slack", category: "Messaging" },
+        { id: "conn-teams", name: "Teams", category: "Messaging" },
+        { id: "conn-m365", name: "Microsoft 365", category: "Productivity" },
+        { id: "conn-sap", name: "SAP S/4HANA", category: "ERP" },
+        { id: "conn-netsuite", name: "Oracle NetSuite", category: "ERP" },
+      ].map((c) => ({ ...c, status: "connected" as const, lastSyncAt: new Date() })),
+    )
     .onConflictDoNothing();
 
   console.log("Seeded demo data.");

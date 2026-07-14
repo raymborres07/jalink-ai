@@ -11,10 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SalesRouteImport } from './routes/sales'
 import { Route as ProcureToPayRouteImport } from './routes/procure-to-pay'
+import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as InventoryRouteImport } from './routes/inventory'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as HrRouteImport } from './routes/hr'
+import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SalesRoute = SalesRouteImport.update({
@@ -27,6 +32,11 @@ const ProcureToPayRoute = ProcureToPayRouteImport.update({
   path: '/procure-to-pay',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MemoryRoute = MemoryRouteImport.update({
+  id: '/memory',
+  path: '/memory',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalRoute = LegalRouteImport.update({
   id: '/legal',
   path: '/legal',
@@ -37,14 +47,34 @@ const InventoryRoute = InventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HrRoute = HrRouteImport.update({
   id: '/hr',
   path: '/hr',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GovernanceRoute = GovernanceRouteImport.update({
+  id: '/governance',
+  path: '/governance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FinanceRoute = FinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentsRoute = AgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -55,29 +85,44 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
+  '/analytics': typeof AnalyticsRoute
   '/finance': typeof FinanceRoute
+  '/governance': typeof GovernanceRoute
   '/hr': typeof HrRoute
+  '/integrations': typeof IntegrationsRoute
   '/inventory': typeof InventoryRoute
   '/legal': typeof LegalRoute
+  '/memory': typeof MemoryRoute
   '/procure-to-pay': typeof ProcureToPayRoute
   '/sales': typeof SalesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
+  '/analytics': typeof AnalyticsRoute
   '/finance': typeof FinanceRoute
+  '/governance': typeof GovernanceRoute
   '/hr': typeof HrRoute
+  '/integrations': typeof IntegrationsRoute
   '/inventory': typeof InventoryRoute
   '/legal': typeof LegalRoute
+  '/memory': typeof MemoryRoute
   '/procure-to-pay': typeof ProcureToPayRoute
   '/sales': typeof SalesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
+  '/analytics': typeof AnalyticsRoute
   '/finance': typeof FinanceRoute
+  '/governance': typeof GovernanceRoute
   '/hr': typeof HrRoute
+  '/integrations': typeof IntegrationsRoute
   '/inventory': typeof InventoryRoute
   '/legal': typeof LegalRoute
+  '/memory': typeof MemoryRoute
   '/procure-to-pay': typeof ProcureToPayRoute
   '/sales': typeof SalesRoute
 }
@@ -85,38 +130,58 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agents'
+    | '/analytics'
     | '/finance'
+    | '/governance'
     | '/hr'
+    | '/integrations'
     | '/inventory'
     | '/legal'
+    | '/memory'
     | '/procure-to-pay'
     | '/sales'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agents'
+    | '/analytics'
     | '/finance'
+    | '/governance'
     | '/hr'
+    | '/integrations'
     | '/inventory'
     | '/legal'
+    | '/memory'
     | '/procure-to-pay'
     | '/sales'
   id:
     | '__root__'
     | '/'
+    | '/agents'
+    | '/analytics'
     | '/finance'
+    | '/governance'
     | '/hr'
+    | '/integrations'
     | '/inventory'
     | '/legal'
+    | '/memory'
     | '/procure-to-pay'
     | '/sales'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentsRoute: typeof AgentsRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   FinanceRoute: typeof FinanceRoute
+  GovernanceRoute: typeof GovernanceRoute
   HrRoute: typeof HrRoute
+  IntegrationsRoute: typeof IntegrationsRoute
   InventoryRoute: typeof InventoryRoute
   LegalRoute: typeof LegalRoute
+  MemoryRoute: typeof MemoryRoute
   ProcureToPayRoute: typeof ProcureToPayRoute
   SalesRoute: typeof SalesRoute
 }
@@ -137,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProcureToPayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/memory': {
+      id: '/memory'
+      path: '/memory'
+      fullPath: '/memory'
+      preLoaderRoute: typeof MemoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal': {
       id: '/legal'
       path: '/legal'
@@ -151,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hr': {
       id: '/hr'
       path: '/hr'
@@ -158,11 +237,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HrRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/governance': {
+      id: '/governance'
+      path: '/governance'
+      fullPath: '/governance'
+      preLoaderRoute: typeof GovernanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/finance': {
       id: '/finance'
       path: '/finance'
       fullPath: '/finance'
       preLoaderRoute: typeof FinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agents': {
+      id: '/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -177,10 +277,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentsRoute: AgentsRoute,
+  AnalyticsRoute: AnalyticsRoute,
   FinanceRoute: FinanceRoute,
+  GovernanceRoute: GovernanceRoute,
   HrRoute: HrRoute,
+  IntegrationsRoute: IntegrationsRoute,
   InventoryRoute: InventoryRoute,
   LegalRoute: LegalRoute,
+  MemoryRoute: MemoryRoute,
   ProcureToPayRoute: ProcureToPayRoute,
   SalesRoute: SalesRoute,
 }
