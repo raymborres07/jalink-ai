@@ -12,4 +12,16 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // `inlineDynamicImports` isn't in this wrapper's typed `nitro` option surface, but it's
+  // forwarded to Nitro's Vite plugin as-is. It disables Nitro/Rolldown's automatic per-npm-package
+  // `_libs/<pkg>.mjs` chunk splitting for the server bundle (bundles everything into one file
+  // instead). Needed to work around a Nitro v3 beta + Rolldown bug where CJS-wrapped React pulled
+  // in through Radix UI packages ends up split into a separate chunk from the runtime helper
+  // (`__commonJSMin`) it needs, and that helper is still `undefined` at the point the split chunk
+  // calls it — a circular ESM chunk-initialization-order bug (nitrojs/nitro#4171,
+  // rolldown/rolldown#8809). Only affects the server bundle; client asset code-splitting is
+  // untouched.
+  nitro: {
+    inlineDynamicImports: true,
+  } as never,
 });
