@@ -27,6 +27,7 @@ import {
   Network,
   Play,
   Plug,
+  RotateCcw,
   Scale,
   Search,
   Settings,
@@ -51,7 +52,7 @@ type Step = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
-const steps: Step[] = [
+const INITIAL_STEPS: Step[] = [
   {
     id: "S1",
     agent: "Intake",
@@ -229,7 +230,100 @@ export function Dashboard() {
       .catch(() => setStats(null));
   }, [fetchStats]);
 
-  const active = useMemo(() => steps.find((s) => s.status === "active"), []);
+  const [steps, setSteps] = useState<Step[]>(INITIAL_STEPS);
+  const [isResuming, setIsResuming] = useState(false);
+  const [approvalDecision, setApprovalDecision] = useState<"approved" | "returned" | null>(null);
+
+  const active = useMemo(() => steps.find((s) => s.status === "active"), [steps]);
+  const doneCount = useMemo(() => steps.filter((s) => s.status === "done").length, [steps]);
+  const progressPct = Math.round((doneCount / steps.length) * 100);
+  const allStepsDone = doneCount === steps.length;
+  const reviewPending = steps.some((s) => s.status === "review");
+
+  // Client-side simulation of the illustrative PR-2041 workflow — there's no
+  // real "PR-2041" row anywhere (unlike /procure-to-pay, which is genuinely
+  // DB-backed), so this stays a local state machine rather than pretending
+  // to write to a backend that doesn't model this scenario. It's real state
+  // and real interactivity, just scoped to this session.
+  function handleResume() {
+    const activeIndex = steps.findIndex((s) => s.status === "active");
+    if (activeIndex === -1 || isResuming) return;
+    setIsResuming(true);
+    setTimeout(() => {
+      setSteps((prev) => {
+        const next = [...prev];
+        next[activeIndex] = {
+          ...next[activeIndex],
+          status: "done",
+          duration: next[activeIndex].duration === "…" ? "2.1s" : next[activeIndex].duration,
+        };
+        const followingIndex = activeIndex + 1;
+        if (followingIndex < next.length && next[followingIndex].status === "pending") {
+          next[followingIndex] = {
+            ...next[followingIndex],
+            status: "active",
+            confidence: next[followingIndex].confidence ?? 0.92,
+            duration: "…",
+          };
+        }
+        return next;
+      });
+      setIsResuming(false);
+    }, 1300);
+  }
+
+  function handleApprove() {
+    setApprovalDecision("approved");
+    setSteps((prev) =>
+      prev.map((s) =>
+        s.id === "S6"
+          ? {
+              ...s,
+              status: "done",
+              note: "Approved by Manager — 0.91 confidence. Routed to ERP sync.",
+            }
+          : s,
+      ),
+    );
+    setTimeout(() => {
+      setSteps((prev) =>
+        prev.map((s) =>
+          s.id === "S7"
+            ? {
+                ...s,
+                status: "done",
+                duration: "1.8s",
+                note: "PO #4500-8821 created and supplier notified via EDI.",
+              }
+            : s,
+        ),
+      );
+    }, 1200);
+  }
+
+  function handleReturn() {
+    setApprovalDecision("returned");
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id === "S4") {
+          return {
+            ...s,
+            status: "active",
+            duration: "…",
+            note: "Re-checking budget & FX after manager return.",
+          };
+        }
+        if (s.id === "S6") {
+          return {
+            ...s,
+            note: "Returned to Finance Agent for revision — will re-route once resubmitted.",
+          };
+        }
+        return s;
+      }),
+    );
+  }
+
   const liveAgents = useMemo(
     () =>
       agents.map((a) => {
@@ -368,22 +462,41 @@ export function Dashboard() {
                   route to a human only when policy thresholds require it.
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-2">
-                  <Chip tone="rose">
-                    <Activity className="h-3 w-3" /> Running
+                  <Chip tone={allStepsDone ? "success" : "rose"}>
+                    <Activity className="h-3 w-3" /> {allStepsDone ? "Complete" : "Running"}
                   </Chip>
                   <Chip tone="muted">
                     <Building2 className="h-3 w-3" /> PT Mahakam Manufaktur
                   </Chip>
-                  <Chip tone="muted">
-                    <Clock className="h-3 w-3" /> ETA 4m 12s
-                  </Chip>
-                  <Chip tone="amber">
-                    <AlertCircle className="h-3 w-3" /> 1 human review
-                  </Chip>
+                  {!allStepsDone && (
+                    <Chip tone="muted">
+                      <Clock className="h-3 w-3" /> ETA 4m 12s
+                    </Chip>
+                  )}
+                  {reviewPending && (
+                    <Chip tone="amber">
+                      <AlertCircle className="h-3 w-3" /> 1 human review
+                    </Chip>
+                  )}
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <button className="inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-ink/90">
-                    <Play className="h-3.5 w-3.5" /> Resume orchestration
+                  <button
+                    onClick={handleResume}
+                    disabled={isResuming || !active}
+                    className="inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isResuming ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Play className="h-3.5 w-3.5" />
+                    )}
+                    {isResuming
+                      ? "Resuming…"
+                      : active
+                        ? "Resume orchestration"
+                        : reviewPending
+                          ? "Awaiting approval"
+                          : "Orchestration complete"}
                   </button>
                   <InspectReasoningToggle />
                   <Link
@@ -413,11 +526,16 @@ export function Dashboard() {
                     <Metric label="Confidence" value="0.91" />
                   </div>
                   <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
-                    <div className="h-full w-[58%] rounded-full bg-gradient-to-r from-rose to-amber" />
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-rose to-amber transition-all duration-500"
+                      style={{ width: `${progressPct}%` }}
+                    />
                   </div>
                   <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
-                    <span>4 of 7 steps complete</span>
-                    <span className="font-mono">58%</span>
+                    <span>
+                      {doneCount} of {steps.length} steps complete
+                    </span>
+                    <span className="font-mono">{progressPct}%</span>
                   </div>
                 </div>
               </div>
@@ -584,7 +702,12 @@ export function Dashboard() {
         {/* Right rail */}
         <aside className="col-span-12 space-y-6 lg:col-span-3">
           {/* Approval card */}
-          <ApprovalCard />
+          <ApprovalCard
+            decision={approvalDecision}
+            onApprove={handleApprove}
+            onReturn={handleReturn}
+            steps={steps}
+          />
 
           {/* Activity */}
           <div className="rounded-2xl border border-border bg-card">
@@ -847,23 +970,39 @@ function DepartmentSidebar() {
   );
 }
 
-function ApprovalCard() {
-  const [isApproved, setIsApproved] = useState(false);
+interface ApprovalCardProps {
+  decision: "approved" | "returned" | null;
+  onApprove: () => void;
+  onReturn: () => void;
+  steps: Step[];
+}
+
+function ApprovalCard({ decision, onApprove, onReturn, steps }: ApprovalCardProps) {
+  const [showTrace, setShowTrace] = useState(false);
+  const isApproved = decision === "approved";
+  const isReturned = decision === "returned";
+  const trace = steps.filter((s) => s.status !== "pending");
 
   return (
     <div
       className={`rounded-2xl border-2 bg-card transition-colors duration-300 ${
-        isApproved ? "border-[var(--success)]" : "border-amber"
+        isApproved ? "border-[var(--success)]" : isReturned ? "border-rose" : "border-amber"
       }`}
     >
       <div className="flex items-center gap-2 border-b border-border px-5 py-3">
         {isApproved ? (
           <CheckCircle2 className="h-4 w-4 text-[var(--success)]" />
+        ) : isReturned ? (
+          <RotateCcw className="h-4 w-4 text-rose" />
         ) : (
           <Shield className="h-4 w-4 text-amber" />
         )}
         <span className="text-sm font-semibold">
-          {isApproved ? "Approval recorded" : "Human approval required"}
+          {isApproved
+            ? "Approval recorded"
+            : isReturned
+              ? "Returned for revision"
+              : "Human approval required"}
         </span>
       </div>
       <div className="px-5 py-4">
@@ -873,6 +1012,8 @@ function ApprovalCard() {
         <div className="mt-1 font-serif text-2xl leading-tight">
           {isApproved ? (
             "Approval recorded by Manager"
+          ) : isReturned ? (
+            "Returned to Finance Agent"
           ) : (
             <>
               Approve PO
@@ -882,8 +1023,10 @@ function ApprovalCard() {
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {isApproved
-            ? "Orchestrator will proceed to ERP sync and notify the supplier via EDI."
-            : "Exceeds L2 threshold (₨ 100M). Orchestrator recommends approval with 0.91 confidence."}
+            ? "Orchestrator proceeded to ERP sync and notified the supplier via EDI."
+            : isReturned
+              ? "Finance Agent is re-checking the budget & FX exposure before this comes back for approval."
+              : "Exceeds L2 threshold (₨ 100M). Orchestrator recommends approval with 0.91 confidence."}
         </p>
 
         <div className="mt-4 space-y-2 rounded-md bg-background p-3 text-xs">
@@ -895,31 +1038,65 @@ function ApprovalCard() {
 
         <div
           className={`grid transition-all duration-300 ease-out ${
-            isApproved ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            decision ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
           }`}
         >
-          <div className="flex items-center gap-2 overflow-hidden rounded-md bg-[var(--success)]/10 px-3 py-2.5 text-sm text-[var(--success)]">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            Logged to the audit trail · ERP sync queued
+          <div
+            className={`flex items-center gap-2 overflow-hidden rounded-md px-3 py-2.5 text-sm ${
+              isApproved ? "bg-[var(--success)]/10 text-[var(--success)]" : "bg-rose/10 text-rose"
+            }`}
+          >
+            {isApproved ? (
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+            ) : (
+              <RotateCcw className="h-4 w-4 shrink-0" />
+            )}
+            {isApproved
+              ? "Logged to the audit trail · ERP sync queued"
+              : "Sent back to Finance Agent · awaiting resubmission"}
           </div>
         </div>
 
-        {!isApproved && (
+        {decision === null && (
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button
-              onClick={() => setIsApproved(true)}
+              onClick={onApprove}
               className="rounded-md bg-ink py-2 text-sm font-medium text-paper transition hover:bg-ink/90"
             >
               Approve
             </button>
-            <button className="rounded-md border border-border bg-background py-2 text-sm transition hover:bg-muted">
+            <button
+              onClick={onReturn}
+              className="rounded-md border border-border bg-background py-2 text-sm transition hover:bg-muted"
+            >
               Return
             </button>
           </div>
         )}
-        <button className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          View full reasoning trace <ArrowRight className="h-3 w-3" />
+        <button
+          type="button"
+          onClick={() => setShowTrace((prev) => !prev)}
+          className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+        >
+          {showTrace ? "Hide" : "View"} full reasoning trace <ArrowRight className="h-3 w-3" />
         </button>
+        {showTrace && (
+          <div className="mt-2 max-h-56 space-y-2 overflow-y-auto rounded-md border border-border bg-background p-3 text-xs">
+            {trace.map((s) => (
+              <div key={s.id} className="border-b border-border/60 pb-2 last:border-0 last:pb-0">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{s.agent}</span>
+                  {s.confidence !== undefined && (
+                    <span className="font-mono text-muted-foreground">
+                      {s.confidence.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-muted-foreground">{s.note}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
