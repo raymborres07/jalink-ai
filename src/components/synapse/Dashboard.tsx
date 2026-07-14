@@ -11,6 +11,7 @@ import {
   Boxes,
   Building2,
   Check,
+  CheckCircle2,
   ChevronRight,
   CircleDollarSign,
   Clock,
@@ -122,12 +123,22 @@ const steps: Step[] = [
 ];
 
 const agents = [
-  { name: "Procurement", tasks: 42, load: 68, tone: "bg-[oklch(0.606_0.213_15)]" },
-  { name: "Finance", tasks: 31, load: 54, tone: "bg-[oklch(0.79_0.166_66)]" },
-  { name: "Inventory", tasks: 28, load: 47, tone: "bg-[oklch(0.62_0.13_155)]" },
-  { name: "Legal", tasks: 12, load: 22, tone: "bg-[oklch(0.55_0.15_260)]" },
-  { name: "Sales", tasks: 19, load: 33, tone: "bg-[oklch(0.7_0.15_40)]" },
-  { name: "HR", tasks: 9, load: 18, tone: "bg-[oklch(0.5_0.1_200)]" },
+  {
+    name: "Procurement",
+    to: "/procure-to-pay",
+    key: "procurement" as const,
+    tone: "bg-[oklch(0.606_0.213_15)]",
+  },
+  { name: "Finance", to: "/finance", key: "finance" as const, tone: "bg-[oklch(0.79_0.166_66)]" },
+  {
+    name: "Inventory",
+    to: "/inventory",
+    key: "inventory" as const,
+    tone: "bg-[oklch(0.62_0.13_155)]",
+  },
+  { name: "Legal", to: "/legal", key: "legal" as const, tone: "bg-[oklch(0.55_0.15_260)]" },
+  { name: "Sales", to: "/sales", key: "sales" as const, tone: "bg-[oklch(0.7_0.15_40)]" },
+  { name: "HR", to: "/hr", key: "hr" as const, tone: "bg-[oklch(0.5_0.1_200)]" },
 ];
 
 const integrations = [
@@ -219,9 +230,14 @@ export function Dashboard() {
   const active = useMemo(() => steps.find((s) => s.status === "active"), []);
   const liveAgents = useMemo(
     () =>
-      agents.map((a) =>
-        a.name === "Procurement" && stats ? { ...a, tasks: stats.totalInvoices } : a,
-      ),
+      agents.map((a) => {
+        const tasks = stats ? stats.departmentTaskCounts[a.key] : 0;
+        // Deterministic load bar from real task count — not a mock number,
+        // but not a real "load" metric either until there's a concept of
+        // agent capacity; scales visually so the bar isn't empty at 1 task.
+        const load = Math.min(95, 15 + tasks * 8);
+        return { ...a, tasks, load };
+      }),
     [stats],
   );
 
@@ -322,18 +338,7 @@ export function Dashboard() {
             })}
           </div>
 
-          <SectionLabel className="mt-6">Departments</SectionLabel>
-          <div className="mt-2 space-y-1 text-sm">
-            {["Procurement", "Finance", "Supply Chain", "Legal", "Sales", "HR"].map((d) => (
-              <div
-                key={d}
-                className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                <span>{d}</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </div>
-            ))}
-          </div>
+          <DepartmentSidebar />
         </aside>
 
         {/* Main column */}
@@ -373,9 +378,7 @@ export function Dashboard() {
                   <button className="inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-ink/90">
                     <Play className="h-3.5 w-3.5" /> Resume orchestration
                   </button>
-                  <button className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">
-                    <Filter className="h-3.5 w-3.5" /> Inspect reasoning
-                  </button>
+                  <InspectReasoningToggle />
                   <Link
                     to="/procure-to-pay"
                     className="inline-flex items-center gap-2 rounded-md border border-rose bg-rose/10 px-4 py-2 text-sm font-medium text-rose hover:bg-rose/20"
@@ -513,7 +516,7 @@ export function Dashboard() {
               </div>
               <div className="mt-4 space-y-3">
                 {liveAgents.map((a) => (
-                  <div key={a.name}>
+                  <Link key={a.name} to={a.to} className="block rounded-md -m-1 p-1 hover:bg-muted">
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2">
                         <Bot className="h-3.5 w-3.5 text-muted-foreground" />
@@ -526,7 +529,7 @@ export function Dashboard() {
                     <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                       <div className={`h-full ${a.tone}`} style={{ width: `${a.load}%` }} />
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -571,44 +574,7 @@ export function Dashboard() {
         {/* Right rail */}
         <aside className="col-span-12 space-y-6 lg:col-span-3">
           {/* Approval card */}
-          <div className="rounded-2xl border-2 border-amber bg-card">
-            <div className="flex items-center gap-2 border-b border-border px-5 py-3">
-              <Shield className="h-4 w-4 text-amber" />
-              <span className="text-sm font-semibold">Human approval required</span>
-            </div>
-            <div className="px-5 py-4">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                Step 06 · Manager approval
-              </div>
-              <div className="mt-1 font-serif text-2xl leading-tight">
-                Approve PO
-                <br />₨ 148.2M
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Exceeds L2 threshold (₨ 100M). Orchestrator recommends approval with 0.91
-                confidence.
-              </p>
-
-              <div className="mt-4 space-y-2 rounded-md bg-background p-3 text-xs">
-                <Row k="Supplier" v="Sinar Logam Sdn Bhd" />
-                <Row k="Delivery" v="Cikarang WH · 14 days" />
-                <Row k="Policy match" v="MSA v3.2 · ASEAN" />
-                <Row k="Risk score" v="Low (0.12)" />
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button className="rounded-md bg-ink py-2 text-sm font-medium text-paper hover:bg-ink/90">
-                  Approve
-                </button>
-                <button className="rounded-md border border-border bg-background py-2 text-sm hover:bg-muted">
-                  Return
-                </button>
-              </div>
-              <button className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-                View full reasoning trace <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
+          <ApprovalCard />
 
           {/* Activity */}
           <div className="rounded-2xl border border-border bg-card">
@@ -731,6 +697,147 @@ function Metric({ label, value }: { label: string; value: string }) {
     <div className="rounded-md border border-border bg-card px-2 py-2">
       <div className="font-mono text-sm font-semibold">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+const REASONING_LOG_LINES = [
+  "[Match Agent] Validated PO-2041 against Delivery Note DN-7734 — quantities reconciled.",
+  "[Risk Agent] Evaluated supplier history for Sinar Logam Sdn Bhd. Score: Low Risk (0.12).",
+  "[Finance Agent] Checked Q1 CAPEX utilization (62%) against approval threshold.",
+];
+
+function InspectReasoningToggle() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsExpanded((prev) => !prev)}
+        aria-expanded={isExpanded}
+        className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm transition hover:bg-muted"
+      >
+        <Filter className="h-3.5 w-3.5" /> Inspect reasoning
+      </button>
+      <div
+        className={`w-full overflow-hidden transition-all duration-300 ease-out ${
+          isExpanded ? "mt-1 max-h-40 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="rounded-md border border-border bg-background p-3 font-mono text-xs leading-relaxed text-muted-foreground">
+          {REASONING_LOG_LINES.map((line) => (
+            <div key={line}>{line}</div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+const DEPARTMENTS = [
+  { name: "Procurement", to: "/procure-to-pay" as const },
+  { name: "Finance", to: "/finance" as const },
+  { name: "Supply Chain", to: "/inventory" as const },
+  { name: "Legal", to: "/legal" as const },
+  { name: "Sales", to: "/sales" as const },
+  { name: "HR", to: "/hr" as const },
+];
+
+function DepartmentSidebar() {
+  return (
+    <>
+      <SectionLabel className="mt-6">Departments</SectionLabel>
+      <div className="mt-2 space-y-1 text-sm">
+        {DEPARTMENTS.map((d) => (
+          <Link
+            key={d.name}
+            to={d.to}
+            className="flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <span className="flex items-center gap-1.5">{d.name}</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function ApprovalCard() {
+  const [isApproved, setIsApproved] = useState(false);
+
+  return (
+    <div
+      className={`rounded-2xl border-2 bg-card transition-colors duration-300 ${
+        isApproved ? "border-[var(--success)]" : "border-amber"
+      }`}
+    >
+      <div className="flex items-center gap-2 border-b border-border px-5 py-3">
+        {isApproved ? (
+          <CheckCircle2 className="h-4 w-4 text-[var(--success)]" />
+        ) : (
+          <Shield className="h-4 w-4 text-amber" />
+        )}
+        <span className="text-sm font-semibold">
+          {isApproved ? "Approval recorded" : "Human approval required"}
+        </span>
+      </div>
+      <div className="px-5 py-4">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">
+          Step 06 · Manager approval
+        </div>
+        <div className="mt-1 font-serif text-2xl leading-tight">
+          {isApproved ? (
+            "Approval recorded by Manager"
+          ) : (
+            <>
+              Approve PO
+              <br />₨ 148.2M
+            </>
+          )}
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {isApproved
+            ? "Orchestrator will proceed to ERP sync and notify the supplier via EDI."
+            : "Exceeds L2 threshold (₨ 100M). Orchestrator recommends approval with 0.91 confidence."}
+        </p>
+
+        <div className="mt-4 space-y-2 rounded-md bg-background p-3 text-xs">
+          <Row k="Supplier" v="Sinar Logam Sdn Bhd" />
+          <Row k="Delivery" v="Cikarang WH · 14 days" />
+          <Row k="Policy match" v="MSA v3.2 · ASEAN" />
+          <Row k="Risk score" v="Low (0.12)" />
+        </div>
+
+        <div
+          className={`grid transition-all duration-300 ease-out ${
+            isApproved ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="flex items-center gap-2 overflow-hidden rounded-md bg-[var(--success)]/10 px-3 py-2.5 text-sm text-[var(--success)]">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            Logged to the audit trail · ERP sync queued
+          </div>
+        </div>
+
+        {!isApproved && (
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setIsApproved(true)}
+              className="rounded-md bg-ink py-2 text-sm font-medium text-paper transition hover:bg-ink/90"
+            >
+              Approve
+            </button>
+            <button className="rounded-md border border-border bg-background py-2 text-sm transition hover:bg-muted">
+              Return
+            </button>
+          </div>
+        )}
+        <button className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          View full reasoning trace <ArrowRight className="h-3 w-3" />
+        </button>
+      </div>
     </div>
   );
 }

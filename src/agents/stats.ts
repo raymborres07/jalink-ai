@@ -1,7 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
-import { desc } from "drizzle-orm";
+import { count, desc } from "drizzle-orm";
 import { db } from "../server/db/client.server";
-import { invoices, suppliers, type InvoiceStatus } from "../server/db/schema";
+import {
+  complianceChecks,
+  contracts,
+  deals,
+  hrRequests,
+  inventoryItems,
+  invoices,
+  spendRequests,
+  suppliers,
+  type InvoiceStatus,
+} from "../server/db/schema";
 
 export interface RecentInvoice {
   id: string;
@@ -12,18 +22,43 @@ export interface RecentInvoice {
   createdAt: number;
 }
 
+export interface DepartmentTaskCounts {
+  procurement: number;
+  finance: number;
+  inventory: number;
+  legal: number;
+  sales: number;
+  hr: number;
+}
+
 export interface DashboardStats {
   totalInvoices: number;
   byStatus: Record<InvoiceStatus, number>;
   supplierCount: number;
   recent: RecentInvoice[];
+  departmentTaskCounts: DepartmentTaskCounts;
 }
 
 export const getDashboardStats = createServerFn({ method: "GET" }).handler(
   async (): Promise<DashboardStats> => {
-    const [allInvoices, allSuppliers] = await Promise.all([
+    const [
+      allInvoices,
+      allSuppliers,
+      [inventoryCount],
+      [spendCount],
+      [complianceCount],
+      [dealCount],
+      [hrCount],
+      [contractCount],
+    ] = await Promise.all([
       db.select().from(invoices).orderBy(desc(invoices.createdAt)),
       db.select().from(suppliers),
+      db.select({ value: count() }).from(inventoryItems),
+      db.select({ value: count() }).from(spendRequests),
+      db.select({ value: count() }).from(complianceChecks),
+      db.select({ value: count() }).from(deals),
+      db.select({ value: count() }).from(hrRequests),
+      db.select({ value: count() }).from(contracts),
     ]);
 
     const supplierNameById = new Map(allSuppliers.map((s) => [s.id, s.name]));
@@ -53,6 +88,14 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(
         decision: invoice.decision,
         createdAt: invoice.createdAt.getTime(),
       })),
+      departmentTaskCounts: {
+        procurement: allInvoices.length,
+        finance: spendCount.value,
+        inventory: inventoryCount.value,
+        legal: complianceCount.value + contractCount.value,
+        sales: dealCount.value,
+        hr: hrCount.value,
+      },
     };
   },
 );
