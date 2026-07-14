@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { getDashboardStats, type DashboardStats } from "@/agents/stats";
+import { getGovernanceLog, type GovernanceLog } from "@/agents/governance";
+import { OPEN_SEARCH_EVENT } from "@/components/synapse/GlobalSearch";
 import {
   Activity,
   AlertCircle,
@@ -273,17 +275,15 @@ export function Dashboard() {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <div className="relative hidden md:block">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(OPEN_SEARCH_EVENT))}
+              className="relative hidden h-9 w-80 items-center rounded-md border border-border bg-card pl-8 pr-3 text-left text-sm text-muted-foreground outline-none hover:border-ink/40 md:flex"
+            >
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <input
-                placeholder="Ask the Orchestrator…  ⌘K"
-                className="h-9 w-80 rounded-md border border-border bg-card pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-ink"
-              />
-            </div>
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card hover:bg-muted">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-rose" />
+              Ask the Orchestrator… <kbd className="ml-auto font-mono text-[10px]">⌘K</kbd>
             </button>
+            <NotificationsBell />
             <div className="flex items-center gap-2 rounded-md border border-border bg-card py-1 pl-1 pr-3">
               <div className="grid h-7 w-7 place-items-center rounded bg-ink text-[11px] font-semibold text-paper">
                 NR
@@ -712,6 +712,74 @@ function Metric({ label, value }: { label: string; value: string }) {
     <div className="rounded-md border border-border bg-card px-2 py-2">
       <div className="font-mono text-sm font-semibold">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function NotificationsBell() {
+  const fetchLog = useServerFn(getGovernanceLog);
+  const [log, setLog] = useState<GovernanceLog | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    fetchLog()
+      .then(setLog)
+      .catch(() => setLog(null));
+  }, [fetchLog]);
+
+  const flagged = (log?.events ?? []).filter((e) => e.outcome === "flag").slice(0, 5);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="relative flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card hover:bg-muted"
+      >
+        <Bell className="h-4 w-4" />
+        {flagged.length > 0 && (
+          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-rose" />
+        )}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-11 z-50 w-80 rounded-md border border-border bg-card shadow-lg">
+            <div className="border-b border-border px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Flagged events
+            </div>
+            {flagged.length === 0 ? (
+              <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                Nothing flagged right now.
+              </div>
+            ) : (
+              <ul className="divide-y divide-border">
+                {flagged.map((e) => (
+                  <li key={e.id}>
+                    <Link
+                      to="/governance"
+                      onClick={() => setOpen(false)}
+                      className="block px-4 py-2.5 text-sm hover:bg-muted"
+                    >
+                      <div className="leading-snug">{e.summary}</div>
+                      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {e.department}
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              to="/governance"
+              onClick={() => setOpen(false)}
+              className="block border-t border-border px-4 py-2 text-center text-xs text-muted-foreground hover:text-foreground"
+            >
+              View full audit trail →
+            </Link>
+          </div>
+        </>
+      )}
     </div>
   );
 }
