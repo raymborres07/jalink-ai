@@ -1125,22 +1125,25 @@ function Row({ k, v }: { k: string; v: string }) {
 function LogoMark({ small = false }: { small?: boolean }) {
   const s = small ? "h-5 w-5" : "h-7 w-7";
   return (
-    <div className={`${s} relative grid place-items-center rounded-md bg-ink text-paper`}>
-      <svg
-        viewBox="0 0 24 24"
-        className="h-3.5 w-3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <circle cx="12" cy="12" r="2.2" fill="currentColor" />
-        <circle cx="4" cy="6" r="1.6" fill="currentColor" />
-        <circle cx="4" cy="18" r="1.6" fill="currentColor" />
-        <circle cx="20" cy="6" r="1.6" fill="currentColor" />
-        <circle cx="20" cy="18" r="1.6" fill="currentColor" />
-        <path d="M5.2 6.6L10.5 11M5.2 17.4L10.5 13M18.8 6.6L13.5 11M18.8 17.4L13.5 13" />
+    <div className={`${s} grid place-items-center rounded-md bg-ink`}>
+      <svg viewBox="-4 -4 108 108" className="h-4/5 w-4/5" fill="none" strokeLinejoin="round">
+        <path
+          d="M20,25 H52 A15,15 0 0 1 67,40 A15,15 0 0 1 52,55 H20 A15,15 0 0 1 5,40 A15,15 0 0 1 20,25 Z"
+          transform="rotate(-18 36 40)"
+          className="stroke-paper"
+          strokeWidth="11"
+        />
+        <path
+          d="M48,45 H80 A15,15 0 0 1 95,60 A15,15 0 0 1 80,75 H48 A15,15 0 0 1 33,60 A15,15 0 0 1 48,45 Z"
+          transform="rotate(-18 64 60)"
+          className="stroke-rose"
+          strokeWidth="11"
+        />
+        <path
+          d="M50,42 C52,47 53,48 58,50 C53,52 52,53 50,58 C48,53 47,52 42,50 C47,48 48,47 50,42 Z"
+          className="fill-amber"
+        />
       </svg>
-      <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-rose" />
     </div>
   );
 }
