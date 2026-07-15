@@ -345,7 +345,7 @@ export function Dashboard() {
           <div className="flex items-center gap-2">
             <LogoMark />
             <span className="font-serif text-xl leading-none">JalinkAI</span>
-            <span className="ml-2 rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span className="ml-2 whitespace-nowrap rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               v2.4 · sea-1
             </span>
           </div>
@@ -1126,21 +1126,23 @@ function LogoMark({ small = false }: { small?: boolean }) {
   const s = small ? "h-5 w-5" : "h-7 w-7";
   return (
     <div className={`${s} grid place-items-center rounded-md bg-ink`}>
-      <svg viewBox="-4 -4 108 108" className="h-4/5 w-4/5" fill="none" strokeLinejoin="round">
+      {/* Bolder, low-detail redraw of the brand mark — thin strokes and the
+          fine spark from the full-size mark blur into a smudge below ~28px. */}
+      <svg viewBox="-3 -3 106 106" className="h-full w-full p-0.5" fill="none" strokeLinejoin="round">
         <path
-          d="M20,25 H52 A15,15 0 0 1 67,40 A15,15 0 0 1 52,55 H20 A15,15 0 0 1 5,40 A15,15 0 0 1 20,25 Z"
-          transform="rotate(-18 36 40)"
+          d="M23,21 H53 A17,17 0 0 1 70,38 A17,17 0 0 1 53,55 H23 A17,17 0 0 1 6,38 A17,17 0 0 1 23,21 Z"
+          transform="rotate(-20 38 38)"
           className="stroke-paper"
-          strokeWidth="11"
+          strokeWidth="15"
         />
         <path
-          d="M48,45 H80 A15,15 0 0 1 95,60 A15,15 0 0 1 80,75 H48 A15,15 0 0 1 33,60 A15,15 0 0 1 48,45 Z"
-          transform="rotate(-18 64 60)"
+          d="M47,45 H77 A17,17 0 0 1 94,62 A17,17 0 0 1 77,79 H47 A17,17 0 0 1 30,62 A17,17 0 0 1 47,45 Z"
+          transform="rotate(-20 62 62)"
           className="stroke-rose"
-          strokeWidth="11"
+          strokeWidth="15"
         />
         <path
-          d="M50,42 C52,47 53,48 58,50 C53,52 52,53 50,58 C48,53 47,52 42,50 C47,48 48,47 50,42 Z"
+          d="M50,40 C53,46 54,47 60,50 C54,53 53,54 50,60 C47,54 46,53 40,50 C46,47 47,46 50,40 Z"
           className="fill-amber"
         />
       </svg>
