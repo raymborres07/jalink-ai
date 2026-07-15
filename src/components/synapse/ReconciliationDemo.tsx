@@ -234,7 +234,7 @@ export function ReconciliationDemo() {
               </h1>
               <p className="mt-2 max-w-lg text-sm text-muted-foreground">
                 A photographed invoice sent over WhatsApp to PT Mahakam Manufaktur, reconciled end
-                to end — no ERP required. JalinkAI lives where the supplier already messages you;
+                to end — no ERP required. SambungAI lives where the supplier already messages you;
                 the back office is the drill-down, not the required front door.
               </p>
             </div>
@@ -585,7 +585,7 @@ function OfficeView({
                         onChange={(e) => setReviewed(e.target.checked)}
                         className="mt-0.5 h-3.5 w-3.5 shrink-0"
                       />
-                      I've reviewed the evidence above. JalinkAI is advisory only — it never
+                      I've reviewed the evidence above. SambungAI is advisory only — it never
                       executes payment; a human decision is required every time.
                     </label>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -686,7 +686,7 @@ function WhatsAppView({
             JA
           </div>
           <div>
-            <div className="text-sm font-medium leading-tight">JalinkAI Bot</div>
+            <div className="text-sm font-medium leading-tight">SambungAI Bot</div>
             <div className="text-[10px] opacity-80">procurement · PT Mahakam Manufaktur</div>
           </div>
         </div>
@@ -708,7 +708,7 @@ function WhatsAppView({
 
           {stage === "idle" && (
             <Bubble tone="system">
-              Press "Run reconciliation" above to see JalinkAI reply in-thread.
+              Press "Run reconciliation" above to see SambungAI reply in-thread.
             </Bubble>
           )}
 
@@ -774,7 +774,7 @@ function WhatsAppView({
 
               {reviewed && !decision && (
                 <Bubble tone="system">
-                  Reviewed — JalinkAI never releases payment on its own. Choose an action below.
+                  Reviewed — SambungAI never releases payment on its own. Choose an action below.
                 </Bubble>
               )}
 

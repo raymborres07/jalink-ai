@@ -344,7 +344,7 @@ export function Dashboard() {
         <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-4 px-6">
           <div className="flex items-center gap-2">
             <LogoMark />
-            <span className="font-serif text-xl leading-none">JalinkAI</span>
+            <span className="font-serif text-xl leading-none">SambungAI</span>
             <span className="ml-2 whitespace-nowrap rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               v2.4 · sea-1
             </span>
@@ -799,7 +799,7 @@ export function Dashboard() {
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-6 py-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <LogoMark small /> JalinkAI · The AI Workflow Orchestrator for ASEAN Enterprises
+            <LogoMark small /> SambungAI · The AI Workflow Orchestrator for ASEAN Enterprises
           </div>
           <div className="flex items-center gap-4">
             <span>Region: SEA-1 (Singapore)</span>
@@ -1128,7 +1128,12 @@ function LogoMark({ small = false }: { small?: boolean }) {
     <div className={`${s} grid place-items-center rounded-md bg-ink`}>
       {/* Bolder, low-detail redraw of the brand mark — thin strokes and the
           fine spark from the full-size mark blur into a smudge below ~28px. */}
-      <svg viewBox="-3 -3 106 106" className="h-full w-full p-0.5" fill="none" strokeLinejoin="round">
+      <svg
+        viewBox="-3 -3 106 106"
+        className="h-full w-full p-0.5"
+        fill="none"
+        strokeLinejoin="round"
+      >
         <path
           d="M23,21 H53 A17,17 0 0 1 70,38 A17,17 0 0 1 53,55 H23 A17,17 0 0 1 6,38 A17,17 0 0 1 23,21 Z"
           transform="rotate(-20 38 38)"
@@ -1142,8 +1147,10 @@ function LogoMark({ small = false }: { small?: boolean }) {
           strokeWidth="15"
         />
         <path
-          d="M50,40 C53,46 54,47 60,50 C54,53 53,54 50,60 C47,54 46,53 40,50 C46,47 47,46 50,40 Z"
-          className="fill-amber"
+          d="M39,51 L46,58 L62,38"
+          className="stroke-amber"
+          strokeWidth="9"
+          strokeLinecap="round"
         />
       </svg>
     </div>

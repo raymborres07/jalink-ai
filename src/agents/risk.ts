@@ -24,7 +24,7 @@ export const scoreRisk = createServerFn({ method: "POST" })
     const isNewSupplier = supplier.id === "new";
 
     const reasoning = isNewSupplier
-      ? `This is JalinkAI's first reconciliation with ${supplier.name}, so there's no track record to score against. This estimate uses the Steel & Metal Fabrication category benchmark (9% average late-delivery rate across the ASEAN supplier base) instead of observed history.`
+      ? `This is SambungAI's first reconciliation with ${supplier.name}, so there's no track record to score against. This estimate uses the Steel & Metal Fabrication category benchmark (9% average late-delivery rate across the ASEAN supplier base) instead of observed history.`
       : `${supplier.name} has a 12% late-delivery rate over the last 6 months, and this shipment is late against agreed terms. Quantity and pricing reconcile once phrasing variance is accounted for.`;
 
     const recommendation = !hasVariance

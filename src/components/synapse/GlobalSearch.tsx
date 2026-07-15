@@ -17,7 +17,7 @@ const MIN_QUERY_LENGTH = 2;
 // Dashboard's visible "Ask the Orchestrator ⌘K" box dispatches this to open
 // the same palette the ⌘K/Ctrl+K shortcut opens, without prop-drilling state
 // through the app shell.
-export const OPEN_SEARCH_EVENT = "jalinkai:open-search";
+export const OPEN_SEARCH_EVENT = "sambungai:open-search";
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
@@ -85,7 +85,7 @@ export function GlobalSearch() {
       />
       <CommandList>
         {query.trim().length < MIN_QUERY_LENGTH ? (
-          <CommandEmpty>Type at least 2 characters to search real JalinkAI data.</CommandEmpty>
+          <CommandEmpty>Type at least 2 characters to search real SambungAI data.</CommandEmpty>
         ) : loading ? (
           <CommandEmpty>Searching…</CommandEmpty>
         ) : results.length === 0 ? (

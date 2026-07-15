@@ -78,14 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "JalinkAI — AI Workflow Orchestrator for ASEAN Enterprises" },
+      { title: "SambungAI — AI Workflow Orchestrator for ASEAN Enterprises" },
       {
         name: "description",
         content:
-          "JalinkAI orchestrates AI agents, enterprise systems, and human approvals to execute end-to-end business workflows across ASEAN organizations, starting with procure-to-pay.",
+          "SambungAI orchestrates AI agents, enterprise systems, and human approvals to execute end-to-end business workflows across ASEAN organizations, starting with procure-to-pay.",
       },
-      { name: "author", content: "JalinkAI" },
-      { property: "og:title", content: "JalinkAI — AI Workflow Orchestrator" },
+      { name: "author", content: "SambungAI" },
+      { property: "og:title", content: "SambungAI — AI Workflow Orchestrator" },
       {
         property: "og:description",
         content:
@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@JalinkAI" },
+      { name: "twitter:site", content: "@SambungAI" },
     ],
     links: [
       {
