@@ -1125,34 +1125,8 @@ function Row({ k, v }: { k: string; v: string }) {
 function LogoMark({ small = false }: { small?: boolean }) {
   const s = small ? "h-5 w-5" : "h-7 w-7";
   return (
-    <div className={`${s} grid place-items-center rounded-md bg-ink`}>
-      {/* Bolder, low-detail redraw of the brand mark — thin strokes and the
-          fine spark from the full-size mark blur into a smudge below ~28px. */}
-      <svg
-        viewBox="-3 -3 106 106"
-        className="h-full w-full p-0.5"
-        fill="none"
-        strokeLinejoin="round"
-      >
-        <path
-          d="M23,21 H53 A17,17 0 0 1 70,38 A17,17 0 0 1 53,55 H23 A17,17 0 0 1 6,38 A17,17 0 0 1 23,21 Z"
-          transform="rotate(-20 38 38)"
-          className="stroke-paper"
-          strokeWidth="15"
-        />
-        <path
-          d="M47,45 H77 A17,17 0 0 1 94,62 A17,17 0 0 1 77,79 H47 A17,17 0 0 1 30,62 A17,17 0 0 1 47,45 Z"
-          transform="rotate(-20 62 62)"
-          className="stroke-rose"
-          strokeWidth="15"
-        />
-        <path
-          d="M39,51 L46,58 L62,38"
-          className="stroke-amber"
-          strokeWidth="9"
-          strokeLinecap="round"
-        />
-      </svg>
+    <div className={`${s} grid place-items-center overflow-hidden rounded-md bg-ink`}>
+      <img src="/logo-mark.png" alt="" className="h-full w-full object-cover" />
     </div>
   );
 }

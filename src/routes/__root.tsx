@@ -92,8 +92,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Coordinate AI agents, ERP systems, and human decision-makers across complete business workflows.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/logo-sambungai.png" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@SambungAI" },
+      { name: "twitter:image", content: "/logo-sambungai.png" },
     ],
     links: [
       {
@@ -101,6 +103,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
